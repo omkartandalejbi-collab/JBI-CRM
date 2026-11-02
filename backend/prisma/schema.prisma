@@ -1,0 +1,178 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----------------------------------------------------
+// USERS & RBAC
+// ----------------------------------------------------
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        String   // 'Admin' | 'HOD' | 'Employee' | 'CA'
+  department  String?  // 'Engineering' | 'Sales' | 'Marketing' | 'Operations' (null for Admin and CA)
+  isActive    Boolean  @default(true)
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  attendances Attendance[]
+  invoices    Invoice[]
+
+  @@index([email])
+  @@index([role])
+  @@index([department])
+  @@map("users")
+}
+
+// ----------------------------------------------------
+// ATTENDANCE MODULE
+// ----------------------------------------------------
+
+model Attendance {
+  id        String    @id @default(cuid())
+  userId    String
+  date      String    // 'YYYY-MM-DD' server date
+  checkIn   DateTime  // Server timestamp of check-in
+  checkOut  DateTime? // Server timestamp of check-out
+  status    String    @default("Present") // 'Present' | 'Completed'
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Enforces strictly one attendance entry per employee per day
+  @@unique([userId, date])
+  @@index([date])
+  @@index([userId])
+  @@map("attendances")
+}
+
+// ----------------------------------------------------
+// ONE-TIME BILLING / PDF INVOICES
+// ----------------------------------------------------
+
+model Invoice {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique // e.g. 'INV-2026-0001'
+  clientName    String
+  clientEmail   String?
+  clientPhone   String?
+  clientAddress String?
+  invoiceDate   String   // 'YYYY-MM-DD'
+  dueDate       String   // 'YYYY-MM-DD'
+  itemsJson     String   // Serialized JSON of [{ description, quantity, unitPrice, amount }]
+  subtotal      Float
+  taxRate       Float    @default(18.0) // Tax percentage (e.g. 18%)
+  taxAmount     Float    @default(0.0)
+  discount      Float    @default(0.0)
+  totalAmount   Float
+  status        String   @default("Pending") // 'Pending' | 'Paid' | 'Cancelled'
+  notes         String?
+  createdById   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([invoiceDate])
+  @@map("invoices")
+}
+
+// ----------------------------------------------------
+// CONTINUOUS / RECURRING BILLING & PENDING TRACKING
+// ----------------------------------------------------
+
+model RecurringClient {
+  id                   String   @id @default(cuid())
+  name                 String
+  company              String?
+  email                String?
+  phone                String?
+  currentMonthlyAmount Float
+  billingStartMonth    String   // 'YYYY-MM'
+  status               String   @default("Active") // 'Active' | 'Paused' | 'Inactive'
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relations
+  rateHistory  RecurringRateHistory[]
+  monthRecords RecurringMonthRecord[]
+  payments     RecurringPayment[]
+
+  @@map("recurring_clients")
+}
+
+model RecurringRateHistory {
+  id              String   @id @default(cuid())
+  clientId        String
+  previousAmount  Float
+  newAmount       Float
+  effectiveMonth  String   // 'YYYY-MM'
+  reason          String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  client RecurringClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@map("recurring_rate_history")
+}
+
+model RecurringMonthRecord {
+  id               String   @id @default(cuid())
+  clientId         String
+  month            String   // 'YYYY-MM'
+  billAmount       Float    // Current month's billed amount
+  previousPending  Float    @default(0.0) // Carried forward from previous month
+  totalDue         Float    // billAmount + previousPending
+  amountPaid       Float    @default(0.0) // Total payments recorded for this month
+  remainingPending Float    // totalDue - amountPaid
+  status           String   @default("Pending") // 'Pending' | 'Partial' | 'Paid'
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  client   RecurringClient    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  payments RecurringPayment[]
+
+  @@unique([clientId, month])
+  @@index([month])
+  @@index([status])
+  @@map("recurring_month_records")
+}
+
+model RecurringPayment {
+  id              String   @id @default(cuid())
+  clientId        String
+  monthRecordId   String
+  amount          Float
+  paymentDate     String   // 'YYYY-MM-DD'
+  paymentMethod   String   @default("Bank Transfer") // 'Bank Transfer' | 'UPI' | 'Cheque' | 'Cash'
+  referenceNumber String?
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  client      RecurringClient      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  monthRecord RecurringMonthRecord @relation(fields: [monthRecordId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([monthRecordId])
+  @@map("recurring_payments")
+}
