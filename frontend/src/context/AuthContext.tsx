@@ -7,7 +7,6 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  switchRoleDemo: (email: string, password: string) => Promise<void>;
   isAdmin: boolean;
   isHOD: boolean;
   isEmployee: boolean;
@@ -53,15 +52,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const switchRoleDemo = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      await login(email, password);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const isAdmin = user?.role === 'Admin';
   const isHOD = user?.role === 'HOD';
   const isEmployee = user?.role === 'Employee';
@@ -74,7 +64,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         login,
         logout,
-        switchRoleDemo,
         isAdmin,
         isHOD,
         isEmployee,

@@ -1,9 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.js';
-import { ShieldCheck, Check, X, Lock, Info, Key, ShieldAlert } from 'lucide-react';
+import {
+  ShieldCheck,
+  Check,
+  X,
+  Lock,
+  Info,
+  Key,
+  ShieldAlert,
+  Building,
+  Users,
+  FileText,
+  Clock,
+  Sparkles,
+} from 'lucide-react';
 
 export const RbacMatrix: React.FC = () => {
   const { user } = useAuth();
+  const [roleFocus, setRoleFocus] = useState<'all' | 'Admin' | 'HOD' | 'Employee' | 'CA'>('all');
 
   const matrixData = [
     {
@@ -72,59 +86,107 @@ export const RbacMatrix: React.FC = () => {
   ];
 
   return (
-    <div className="p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Header */}
       <div>
-        <div className="flex items-center space-x-3">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <ShieldCheck className="w-6 h-6 text-indigo-600" />
-            Roles &amp; Permissions Matrix (RBAC Specification)
-          </h1>
+        <div className="flex items-center gap-2 text-xs font-semibold text-brand-600 uppercase tracking-wider mb-1">
+          <span>Security &amp; Governance</span>
+          <span className="text-slate-300">&bull;</span>
+          <span>Access Control</span>
         </div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+          <ShieldCheck className="w-7 h-7 text-brand-600" />
+          <span>RBAC Enterprise Security Matrix</span>
+        </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Complete formal documentation of JBI CRM hierarchical role capabilities and backend security guarantees.
+          Specification of hierarchical role permissions enforced by middleware at every REST API endpoint.
         </p>
       </div>
 
-      {/* Current User Session Status */}
-      <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600">
+      {/* Active Session Card */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-crm-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center shrink-0">
             <Key className="w-5 h-5" />
           </div>
           <div>
             <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-              Your Active Session
+              Active Session Claims
             </div>
-            <div className="text-sm font-bold text-slate-900">
-              {user?.name} — <span className="text-indigo-600">{user?.role}</span>{' '}
+            <div className="text-sm font-bold text-slate-900 mt-0.5">
+              {user?.name} &bull; <span className="text-brand-600 font-extrabold">{user?.role}</span>{' '}
               {user?.department ? `(${user.department} Department)` : ''}
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 font-mono self-start sm:self-auto font-medium">
-          Security Level: JWT Verified (HMAC SHA-256)
+        <div className="text-xs text-slate-600 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200 font-mono font-medium self-start sm:self-auto flex items-center gap-2 shadow-2xs">
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Security: Signed JWT (HMAC-SHA256)</span>
+        </div>
+      </div>
+
+      {/* 4 Role Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border border-indigo-200/90 rounded-2xl p-4 shadow-crm-card">
+          <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs uppercase tracking-wider mb-1">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Super Admin</span>
+          </div>
+          <div className="text-xs text-slate-600 mt-2 leading-relaxed">
+            Full enterprise write and read authority across all departments, invoices, users, rates, and attendance.
+          </div>
+        </div>
+
+        <div className="bg-white border border-amber-200/90 rounded-2xl p-4 shadow-crm-card">
+          <div className="flex items-center gap-2 text-amber-700 font-bold text-xs uppercase tracking-wider mb-1">
+            <Building className="w-4 h-4" />
+            <span>Department HOD</span>
+          </div>
+          <div className="text-xs text-slate-600 mt-2 leading-relaxed">
+            Strictly scoped to supervising assigned department staff. Blocked from billing, invoices, and other depts.
+          </div>
+        </div>
+
+        <div className="bg-white border border-emerald-200/90 rounded-2xl p-4 shadow-crm-card">
+          <div className="flex items-center gap-2 text-emerald-700 font-bold text-xs uppercase tracking-wider mb-1">
+            <Users className="w-4 h-4" />
+            <span>Employee Staff</span>
+          </div>
+          <div className="text-xs text-slate-600 mt-2 leading-relaxed">
+            Restricted to personal daily check-in / check-out punch and viewing own attendance logs.
+          </div>
+        </div>
+
+        <div className="bg-white border border-sky-200/90 rounded-2xl p-4 shadow-crm-card">
+          <div className="flex items-center gap-2 text-sky-700 font-bold text-xs uppercase tracking-wider mb-1">
+            <FileText className="w-4 h-4" />
+            <span>Chartered Accountant</span>
+          </div>
+          <div className="text-xs text-slate-600 mt-2 leading-relaxed">
+            Read-only financial auditor scope. Can inspect billing dashboards and download vector PDF tax invoices.
+          </div>
         </div>
       </div>
 
       {/* RBAC Matrix Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-slate-800">Hierarchical Permission Matrix</h2>
-          <span className="text-[11px] text-slate-500 font-medium">
-            Backend RBAC Middleware active on every API route
+      <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden shadow-crm-card">
+        <div className="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-800">Permission Matrix by API Action</h2>
+          <span className="text-[11px] text-slate-500 font-medium font-mono">
+            Middleware: authenticateToken + requireRole
           </span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50/70 text-slate-600 font-semibold border-b border-slate-200">
-                <th className="py-3 px-4 w-1/4">Feature / Module Action</th>
-                <th className="py-3 px-4 text-indigo-700">Admin (Super)</th>
-                <th className="py-3 px-4 text-amber-700">HOD (4 Depts)</th>
-                <th className="py-3 px-4 text-emerald-700">Employee</th>
-                <th className="py-3 px-4 text-sky-700">Chartered Accountant (CA)</th>
+              <tr className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200">
+                <th className="py-3.5 px-4 w-1/4">System Module Action</th>
+                <th className="py-3.5 px-4 text-indigo-700 font-bold">Admin (Super)</th>
+                <th className="py-3.5 px-4 text-amber-700 font-bold">HOD (Dept Lead)</th>
+                <th className="py-3.5 px-4 text-emerald-700 font-bold">Employee</th>
+                <th className="py-3.5 px-4 text-sky-700 font-bold">CA Auditor</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -134,11 +196,11 @@ export const RbacMatrix: React.FC = () => {
 
                   {/* Admin */}
                   <td className="py-3.5 px-4">
-                    <div className="flex items-start gap-1.5 text-indigo-700">
+                    <div className="flex items-start gap-1.5">
                       <Check className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
                       <div>
-                        <span className="font-semibold text-slate-900">Full Access</span>
-                        <div className="text-[10px] text-slate-500">{row.admin.note}</div>
+                        <span className="font-bold text-slate-900">Allowed</span>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{row.admin.note}</div>
                       </div>
                     </div>
                   </td>
@@ -147,22 +209,16 @@ export const RbacMatrix: React.FC = () => {
                   <td className="py-3.5 px-4">
                     <div className="flex items-start gap-1.5">
                       {row.hod.allowed ? (
-                        <>
-                          <Check className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-amber-700">Department Scoped</span>
-                            <div className="text-[10px] text-slate-500">{row.hod.note}</div>
-                          </div>
-                        </>
+                        <Check className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
                       ) : (
-                        <>
-                          <X className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-slate-400">No Access</span>
-                            <div className="text-[10px] text-slate-400">{row.hod.note}</div>
-                          </div>
-                        </>
+                        <X className="w-4 h-4 shrink-0 text-rose-500 mt-0.5" />
                       )}
+                      <div>
+                        <span className={`font-bold ${row.hod.allowed ? 'text-emerald-700' : 'text-slate-400'}`}>
+                          {row.hod.allowed ? 'Scoped' : 'Blocked'}
+                        </span>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{row.hod.note}</div>
+                      </div>
                     </div>
                   </td>
 
@@ -170,22 +226,16 @@ export const RbacMatrix: React.FC = () => {
                   <td className="py-3.5 px-4">
                     <div className="flex items-start gap-1.5">
                       {row.emp.allowed ? (
-                        <>
-                          <Check className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-emerald-700">Self Only</span>
-                            <div className="text-[10px] text-slate-500">{row.emp.note}</div>
-                          </div>
-                        </>
+                        <Check className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
                       ) : (
-                        <>
-                          <X className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-slate-400">No Access</span>
-                            <div className="text-[10px] text-slate-400">{row.emp.note}</div>
-                          </div>
-                        </>
+                        <X className="w-4 h-4 shrink-0 text-rose-500 mt-0.5" />
                       )}
+                      <div>
+                        <span className={`font-bold ${row.emp.allowed ? 'text-emerald-700' : 'text-slate-400'}`}>
+                          {row.emp.allowed ? 'Self Only' : 'Blocked'}
+                        </span>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{row.emp.note}</div>
+                      </div>
                     </div>
                   </td>
 
@@ -193,61 +243,22 @@ export const RbacMatrix: React.FC = () => {
                   <td className="py-3.5 px-4">
                     <div className="flex items-start gap-1.5">
                       {row.ca.allowed ? (
-                        <>
-                          <Check className="w-4 h-4 shrink-0 text-sky-600 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-sky-700">Read-Only</span>
-                            <div className="text-[10px] text-slate-500">{row.ca.note}</div>
-                          </div>
-                        </>
+                        <Check className="w-4 h-4 shrink-0 text-sky-600 mt-0.5" />
                       ) : (
-                        <>
-                          <X className="w-4 h-4 shrink-0 text-slate-400 mt-0.5" />
-                          <div>
-                            <span className="font-semibold text-slate-400">No Access</span>
-                            <div className="text-[10px] text-slate-400">{row.ca.note}</div>
-                          </div>
-                        </>
+                        <X className="w-4 h-4 shrink-0 text-rose-500 mt-0.5" />
                       )}
+                      <div>
+                        <span className={`font-bold ${row.ca.allowed ? 'text-sky-700' : 'text-slate-400'}`}>
+                          {row.ca.allowed ? 'Read-Only' : 'Blocked'}
+                        </span>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{row.ca.note}</div>
+                      </div>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      {/* Security Architecture Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
-          <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <Lock className="w-4 h-4 text-indigo-600" />
-            Backend Middleware Enforcement
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Hiding menu items is not enough. The backend middleware intercepts every request, validates JWT signatures, verifies the active status in SQLite, and checks role permissions.
-          </p>
-        </div>
-
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
-          <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <ShieldAlert className="w-4 h-4 text-amber-600" />
-            Department Query Scoping
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            An HOD of Engineering cannot view Sales data even by modifying the URL or API payload. Queries executed by HODs are automatically scoped to <code className="text-amber-800 bg-amber-50 px-1 py-0.5 rounded border border-amber-200">req.user.department</code>.
-          </p>
-        </div>
-
-        <div className="p-5 rounded-xl bg-white border border-slate-200 shadow-xs space-y-2">
-          <h3 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-            <Info className="w-4 h-4 text-sky-600" />
-            Chartered Accountant Isolation
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Chartered Accountants (CA) have strictly read-only access to the Billing module. All POST, PUT, and DELETE operations return a 403 Forbidden status, preventing modifications.
-          </p>
         </div>
       </div>
     </div>

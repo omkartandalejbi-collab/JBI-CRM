@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import prisma from './prisma.js';
 
 async function main() {
-  console.log('🌱 Starting JBI CRM Database Seeding...');
+  console.log('[SEED] Starting JBI CRM Database Seeding...');
 
   // Clean existing data
   await prisma.recurringPayment.deleteMany();
@@ -13,7 +13,7 @@ async function main() {
   await prisma.attendance.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('🧹 Existing data wiped.');
+  console.log('[CLEAN] Existing data wiped.');
 
   // Common password hashes
   const adminPassword = await bcrypt.hash('Admin@123', 10);
@@ -210,17 +210,17 @@ async function main() {
     },
   });
 
-  console.log('✔ Users seeded successfully:');
-  console.log('  👑 Super Admin: admin@jbi.com / Admin@123');
-  console.log('  💼 CA:          ca@jbi.com / Ca@123 (and ca.sharma@jbi.com)');
-  console.log('  🏛️  HOD (Eng):   hod.engineering@jbi.com / Hod@123');
-  console.log('  🏛️  HOD (Sales): hod.sales@jbi.com / Hod@123');
-  console.log('  🏛️  HOD (Mkt):   hod.marketing@jbi.com / Hod@123');
-  console.log('  🏛️  HOD (Ops):   hod.operations@jbi.com / Hod@123');
-  console.log('  👤 Emp (Eng):   emp.engineering@jbi.com (or emp.alex@jbi.com) / Emp@123');
-  console.log('  👤 Emp (Sales): emp.sales@jbi.com (or emp.sarah@jbi.com) / Emp@123');
-  console.log('  👤 Emp (Mkt):   emp.marketing@jbi.com (or emp.mike@jbi.com) / Emp@123');
-  console.log('  👤 Emp (Ops):   emp.operations@jbi.com (or emp.priya@jbi.com) / Emp@123');
+  console.log('[OK] Users seeded successfully:');
+  console.log('  * Super Admin: admin@jbi.com / Admin@123');
+  console.log('  * CA:          ca@jbi.com / Ca@123 (and ca.sharma@jbi.com)');
+  console.log('  * HOD (Eng):   hod.engineering@jbi.com / Hod@123');
+  console.log('  * HOD (Sales): hod.sales@jbi.com / Hod@123');
+  console.log('  * HOD (Mkt):   hod.marketing@jbi.com / Hod@123');
+  console.log('  * HOD (Ops):   hod.operations@jbi.com / Hod@123');
+  console.log('  * Emp (Eng):   emp.engineering@jbi.com (or emp.alex@jbi.com) / Emp@123');
+  console.log('  * Emp (Sales): emp.sales@jbi.com (or emp.sarah@jbi.com) / Emp@123');
+  console.log('  * Emp (Mkt):   emp.marketing@jbi.com (or emp.mike@jbi.com) / Emp@123');
+  console.log('  * Emp (Ops):   emp.operations@jbi.com (or emp.priya@jbi.com) / Emp@123');
 
   // ---------------------------------------------
   // 2. SEED ONE-TIME INVOICES (PDF AUTOMATION)
@@ -286,7 +286,7 @@ async function main() {
     },
   });
 
-  console.log('✔ One-Time Invoices seeded.');
+  console.log('[OK] One-Time Invoices seeded.');
 
   // ---------------------------------------------
   // 3. SEED RECURRING BILLING (Continuous with Carry-Forward Example)
@@ -477,7 +477,7 @@ async function main() {
     },
   });
 
-  console.log('✔ Recurring Billing & Payment Histories seeded.');
+  console.log('[OK] Recurring Billing & Payment Histories seeded.');
 
   // ---------------------------------------------
   // 4. SEED SAMPLE ATTENDANCE RECORDS
@@ -507,13 +507,13 @@ async function main() {
     }
   }
 
-  console.log('✔ Sample Attendance records seeded across departments.');
-  console.log('🎉 Seeding successfully completed!');
+  console.log('[OK] Sample Attendance records seeded across departments.');
+  console.log('[SUCCESS] Seeding successfully completed!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e);
+    console.error('[ERROR] Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

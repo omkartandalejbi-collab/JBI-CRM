@@ -8,6 +8,7 @@
     "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "seed": "tsx src/seed.ts",
+    "test:rbac": "tsx src/scripts/testRbac.ts",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"
@@ -29,6 +30,7 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/node": "^22.10.7",
     "@types/pdfkit": "^0.13.9",
+    "axios": "^1.21.0",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"

@@ -7,69 +7,88 @@ import {
   Clock,
   Building,
   Users,
+  ShieldCheck,
   ShieldAlert,
   Lock,
-  FlaskConical,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  mobileOpen = false,
+  onCloseMobile,
+}) => {
   const { user, isAdmin, isHOD, isEmployee, isCA } = useAuth();
 
-  return (
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 min-h-[calc(100vh-4rem)] select-none">
-      <div className="p-4 space-y-6">
+  const handleSelectTab = (tab: string) => {
+    setActiveTab(tab);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
+  const navContent = (
+    <div className="flex flex-col justify-between h-full overflow-y-auto no-scrollbar select-none">
+      <div className="p-3 sm:p-3.5 space-y-4">
         {/* Workspace Scope Pill */}
-        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-            Active Workspace Scope
+        <div className="bg-gradient-to-br from-slate-50 to-indigo-50/40 p-2.5 rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Authorized Scope
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Session Authenticated" />
           </div>
-          <div className="text-xs font-semibold">
-            {isAdmin && <span className="text-indigo-700">Enterprise Administrator (Global)</span>}
-            {isHOD && (
-              <span className="text-amber-700">Department Lead &bull; {user?.department}</span>
-            )}
-            {isEmployee && (
-              <span className="text-emerald-700">
-                Staff Member &bull; {user?.department || 'Operations'}
-              </span>
-            )}
-            {isCA && (
-              <span className="text-sky-700">Auditor &bull; Financial Scope (Read-Only)</span>
-            )}
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-md bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
+              {isAdmin && <ShieldCheck className="w-3 h-3 text-brand-600" />}
+              {isHOD && <Building className="w-3 h-3 text-amber-600" />}
+              {isCA && <FileText className="w-3 h-3 text-sky-600" />}
+              {isEmployee && <Clock className="w-3 h-3 text-emerald-600" />}
+            </div>
+            <div className="text-xs font-bold text-slate-800 truncate">
+              {isAdmin && 'Global Enterprise Scope'}
+              {isHOD && `${user?.department} Lead`}
+              {isCA && 'Financial Auditor Scope'}
+              {isEmployee && `${user?.department || 'Operations'} Staff`}
+            </div>
           </div>
         </div>
 
         {/* Navigation Groups */}
-        <div className="space-y-5">
+        <div className="space-y-3.5">
           {/* Financial Operations */}
           {(isAdmin || isCA) && (
             <div>
-              <div className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">
-                Financial Operations
+              <div className="px-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1 flex items-center justify-between">
+                <span>Financial Suite</span>
+                <span className="text-[9px] font-mono text-slate-400">REV</span>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 <button
-                  onClick={() => setActiveTab('billing-dashboard')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => handleSelectTab('billing-dashboard')}
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     activeTab === 'billing-dashboard'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center space-x-2.5">
-                    <LayoutDashboard className="w-4 h-4 shrink-0" />
-                    <span>Billing Dashboard</span>
+                  <div className="flex items-center space-x-2">
+                    <LayoutDashboard className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'billing-dashboard' ? 'text-white' : 'text-slate-400'}`} />
+                    <span>Billing Intelligence</span>
                   </div>
                   {isCA && (
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${
+                      className={`text-[9px] px-1 py-0.2 rounded border font-semibold ${
                         activeTab === 'billing-dashboard'
-                          ? 'bg-indigo-700 text-white border-indigo-500'
+                          ? 'bg-brand-700 text-white border-brand-500'
                           : 'bg-sky-50 text-sky-700 border-sky-200'
                       }`}
                     >
@@ -79,22 +98,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('invoices')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => handleSelectTab('invoices')}
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     activeTab === 'invoices'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center space-x-2.5">
-                    <FileText className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center space-x-2">
+                    <FileText className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'invoices' ? 'text-white' : 'text-slate-400'}`} />
                     <span>One-Time Invoices</span>
                   </div>
                   {isCA && (
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${
+                      className={`text-[9px] px-1 py-0.2 rounded border font-semibold ${
                         activeTab === 'invoices'
-                          ? 'bg-indigo-700 text-white border-indigo-500'
+                          ? 'bg-brand-700 text-white border-brand-500'
                           : 'bg-sky-50 text-sky-700 border-sky-200'
                       }`}
                     >
@@ -104,22 +123,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('recurring')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => handleSelectTab('recurring')}
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     activeTab === 'recurring'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center space-x-2.5">
-                    <Repeat className="w-4 h-4 shrink-0" />
+                  <div className="flex items-center space-x-2">
+                    <Repeat className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'recurring' ? 'text-white' : 'text-slate-400'}`} />
                     <span>Continuous Billing</span>
                   </div>
                   {isCA && (
                     <span
-                      className={`text-[9px] px-1.5 py-0.5 rounded border font-semibold ${
+                      className={`text-[9px] px-1 py-0.2 rounded border font-semibold ${
                         activeTab === 'recurring'
-                          ? 'bg-indigo-700 text-white border-indigo-500'
+                          ? 'bg-brand-700 text-white border-brand-500'
                           : 'bg-sky-50 text-sky-700 border-sky-200'
                       }`}
                     >
@@ -133,85 +152,75 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
 
           {/* Workforce & Attendance */}
           <div>
-            <div className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">
-              Workforce &amp; Attendance
+            <div className="px-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1 flex items-center justify-between">
+              <span>Workforce Suite</span>
+              <span className="text-[9px] font-mono text-slate-400">HR</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               <button
-                onClick={() => setActiveTab('attendance')}
-                className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                onClick={() => handleSelectTab('attendance')}
+                className={`w-full flex items-center space-x-2 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === 'attendance'
-                    ? 'bg-indigo-600 text-white shadow-xs'
+                    ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <Clock className="w-4 h-4 shrink-0" />
+                <Clock className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'attendance' ? 'text-white' : 'text-slate-400'}`} />
                 <span>
                   {isAdmin && 'Global Attendance'}
-                  {isHOD && 'Department Attendance'}
+                  {isHOD && 'Department Timesheets'}
                   {isEmployee && 'My Attendance'}
-                  {isCA && 'Staff Timesheets'}
+                  {isCA && 'Staff Audit Logs'}
                 </span>
               </button>
 
               {isHOD && (
                 <button
-                  onClick={() => setActiveTab('department-team')}
-                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => handleSelectTab('department-team')}
+                  className={`w-full flex items-center space-x-2 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     activeTab === 'department-team'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <Building className="w-4 h-4 shrink-0" />
+                  <Building className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'department-team' ? 'text-white' : 'text-slate-400'}`} />
                   <span>My Department Team</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Governance & Quality */}
+          {/* Governance & Security */}
           <div>
-            <div className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-2">
-              Governance &amp; Verification
+            <div className="px-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1 flex items-center justify-between">
+              <span>Governance &amp; Security</span>
+              <span className="text-[9px] font-mono text-slate-400">SYS</span>
             </div>
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {isAdmin && (
                 <button
-                  onClick={() => setActiveTab('users')}
-                  className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                  onClick={() => handleSelectTab('users')}
+                  className={`w-full flex items-center space-x-2 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     activeTab === 'users'
-                      ? 'bg-indigo-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`}
                 >
-                  <Users className="w-4 h-4 shrink-0" />
+                  <Users className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'users' ? 'text-white' : 'text-slate-400'}`} />
                   <span>User &amp; Role Admin</span>
                 </button>
               )}
 
               <button
-                onClick={() => setActiveTab('rbac-matrix')}
-                className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                onClick={() => handleSelectTab('rbac-matrix')}
+                className={`w-full flex items-center space-x-2 px-2.5 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                   activeTab === 'rbac-matrix'
-                    ? 'bg-indigo-600 text-white shadow-xs'
+                    ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/25'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>RBAC Access Matrix</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('test-suite')}
-                className={`w-full flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                  activeTab === 'test-suite'
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                <FlaskConical className="w-4 h-4 shrink-0 text-amber-500" />
-                <span>System Test Suite</span>
+                <ShieldAlert className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'rbac-matrix' ? 'text-white' : 'text-slate-400'}`} />
+                <span>RBAC Security Matrix</span>
               </button>
             </div>
           </div>
@@ -219,15 +228,54 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => 
       </div>
 
       {/* Bottom Compliance Badge */}
-      <div className="p-4 border-t border-slate-200 bg-slate-50">
-        <div className="flex items-center space-x-2 text-[11px] text-slate-600">
-          <Lock className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-          <span className="font-semibold text-slate-800">Enterprise RBAC Policy</span>
+      <div className="p-3 border-t border-slate-100 bg-slate-50/60 shrink-0">
+        <div className="flex items-center justify-between text-[11px] text-slate-500">
+          <div className="flex items-center space-x-1.5 font-medium">
+            <Lock className="w-3 h-3 text-brand-600 shrink-0" />
+            <span>RBAC Enforced</span>
+          </div>
+          <span className="text-[10px] font-mono text-slate-400">v2.4</span>
         </div>
-        <p className="text-[10px] text-slate-500 mt-0.5">
-          Queries strictly authorized per authenticated session.
-        </p>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200 flex-col justify-between shrink-0 h-full overflow-y-auto no-scrollbar select-none">
+        {navContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+            onClick={onCloseMobile}
+          />
+          <aside className="relative w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col justify-between overflow-hidden z-10 animate-in slide-in-from-left duration-200">
+            <div className="p-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-xs">
+                  JBI
+                </div>
+                <span className="font-bold text-slate-900 text-xs">CRM Navigation</span>
+              </div>
+              <button
+                onClick={onCloseMobile}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                aria-label="Close navigation"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {navContent}
+            </div>
+          </aside>
+        </div>
+      )}
+    </>
   );
 };

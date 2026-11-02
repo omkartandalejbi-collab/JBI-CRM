@@ -4,7 +4,7 @@ const BASE_URL = 'http://localhost:5000/api';
 
 async function runTests() {
   console.log('========================================================');
-  console.log('🧪 JBI CRM: Comprehensive RBAC & Security Test Suite');
+  console.log('[TEST] JBI CRM: Comprehensive RBAC & Security Test Suite');
   console.log('========================================================');
 
   let passed = 0;
@@ -14,9 +14,9 @@ async function runTests() {
     total++;
     if (condition) {
       passed++;
-      console.log(`  ✔ PASS: ${testName}`);
+      console.log(`  [PASS] ${testName}`);
     } else {
-      console.error(`  ❌ FAIL: ${testName} - ${detail || ''}`);
+      console.error(`  [FAIL] ${testName} - ${detail || ''}`);
     }
   };
 
@@ -278,7 +278,7 @@ async function runTests() {
     assert(nonEngRecords.length === 0, 'HOD of Engineering CANNOT see records of other departments');
 
     console.log('\n========================================================');
-    console.log(`🎉 TEST SUMMARY: ${passed}/${total} PASSED (100% SUCCESS)`);
+    console.log(`[SUMMARY] ${passed}/${total} PASSED (100% SUCCESS)`);
     console.log('========================================================\n');
   } catch (error: any) {
     console.error('Fatal test error:', error);
